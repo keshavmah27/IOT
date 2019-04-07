@@ -1,0 +1,8 @@
+[Unit]
+Description=PiThing Service
+ 
+[Service]
+ExecStart=/usr/bin/python /home/pi/part1/webapp/main.py
+ 
+[Install]
+WantedBy=multi-user.target

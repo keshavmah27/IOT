@@ -1,0 +1,203 @@
+ <!doctype html>
+<html class="no-js" lang="">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="{{url_for('static',filename='css/bootstrap.min.css')}}">
+</head>
+
+<body>
+  <!--[if lte IE 9]>
+    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+  <![endif]-->
+
+  <!-- Add your site or application content here -->
+  <div class="jumbotron">
+    <div class="container">
+      <h1 class="display-3">Raspberry Pi Thing</h1>
+      <p>Welcome to my Internet of things!</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Example row of columns -->
+    <div class="row">
+
+      <div class="col-md-4">
+        <h3>Bulb is <span class='label-default' id='bulb_value'></span></h3>
+        <h3>Fan  is <span class='label-default' id='fan_value'></span></h3>
+        <h3>AC  is <span class='label-default' id='ac_value'></span></h3>
+        <h3>TV  is <span class='label-default' id='tv_value'></span></h3>
+      </div>
+
+      <div class="col-md-4">
+        <h3>Bulb</h3>
+	  <button type='button' class='btn-default' id='bulb_on'>Turn On</button>
+	  <button type='button' class='btn-default' id='bulb_off'>Turn Off</button>
+        <h3>Fan</h3>
+	  <button type='button' class='btn-default' id='fan_on'>Turn On</button>
+	  <button type='button' class='btn-default' id='fan_off'>Turn Off</button>
+        <h3>Air Conditioner</h3>
+	  <button type='button' class='btn-default' id='ac_on'>Turn On</button>
+	  <button type='button' class='btn-default' id='ac_off'>Turn Off</button>
+        <h3>Television</h3>
+	  <button type='button' class='btn-default' id='tv_on'>Turn On</button>
+	  <button type='button' class='btn-default' id='tv_off'>Turn Off</button>
+      </div>
+      
+    </div>
+  </div>
+	
+  <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/vendor/jquery-3.3.1.min.js"><\/script>')</script>
+
+  <script src="{{url_for('static',filename='js/bootstrap.min.js')}}"></script>
+  <script src="{{url_for('static',filename='js/socket.io.js')}}"></script>
+  
+  <script>
+     $(document).ready(function(){
+       	initialDevicesStatus()
+
+	function initialDevicesStatus(){
+	    if({{devicesStatus[0]}} === 1){
+		$('#bulb_value').text("ON");
+		$('#bulb_on').hide();
+		$('#bulb_off').show();
+	    }
+	    if({{devicesStatus[0]}} === 0){
+		$('#bulb_value').text("OFF");
+		$('#bulb_on').show()
+		$('#bulb_off').hide()		
+	    }
+	    if({{devicesStatus[1]}} === 1){
+		$('#fan_value').text("ON");
+		$('#fan_on').hide()
+		$('#fan_off').show()
+	    }
+	    if({{devicesStatus[1]}} === 0){
+		$('#fan_value').text("OFF");
+		$('#fan_on').show()
+		$('#fan_off').hide()		
+	    }	    
+	    if({{devicesStatus[2]}} === 1){
+		$('#ac_value').text("ON");
+		$('#ac_on').hide()
+		$('#ac_off').show()
+	    }
+	    if({{devicesStatus[2]}} === 0){
+		$('#ac_value').text("OFF");
+		$('#ac_on').show()
+		$('#ac_off').hide()		
+	    }	    
+	    if({{devicesStatus[3]}} === 1){
+		$('#tv_value').text("ON");
+		$('#tv_on').hide()
+		$('#tv_off').show()
+	    }
+	    if({{devicesStatus[3]}} === 0){
+		$('#tv_value').text("OFF");
+		$('#tv_on').show()
+		$('#tv_off').hide()		
+	    }	    
+	}
+	
+
+	function updateDevices(deviceValues){
+	    if(deviceValues.bulb === 'on'){
+		$('#bulb_value').text("ON");
+		$('#bulb_on').hide()
+		$('#bulb_off').show()
+	    }
+	    else if(deviceValues.bulb === 'off'){
+		$('#bulb_value').text("OFF");
+		$('#bulb_on').show()
+		$('#bulb_off').hide()		
+	    }
+	    else if(deviceValues.fan === 'on'){
+		$('#fan_value').text("ON");
+		$('#fan_on').hide()
+		$('#fan_off').show()
+	    }
+	    else if(deviceValues.fan === 'off'){
+		$('#fan_value').text("OFF");
+		$('#fan_on').show()
+		$('#fan_off').hide()		
+	    }	    
+	    else if(deviceValues.ac === 'on'){
+		$('#ac_value').text("ON");
+		$('#ac_on').hide()
+		$('#ac_off').show()
+	    }
+	    else if(deviceValues.ac === 'off'){
+		$('#ac_value').text("OFF");
+		$('#ac_on').show()
+		$('#ac_off').hide()		
+	    }	    
+	    else if(deviceValues.tv === 'on'){
+		$('#tv_value').text("ON");
+		$('#tv_on').hide()
+		$('#tv_off').show()
+	    }
+	    else if(deviceValues.tv === 'off'){
+		$('#tv_value').text("OFF");
+		$('#tv_on').show()
+		$('#tv_off').hide()		
+	    }	    
+	}
+	
+	var socket = io.connect();
+       
+	socket.on('connect', function() {
+	    console.log('IO Socket Connected');
+	});
+	
+	socket.on('status_changed',function(e){
+	      console.log(e);
+	      updateDevices(e)
+	});
+	
+	
+	$('#bulb_on').click(function(){
+	    socket.emit('change_bulb','on');
+	    $('#bulb_on').toggle()
+	    $('#bulb_off').toggle()
+	});
+	
+	$('#bulb_off').click(function(){
+	    socket.emit('change_bulb','off');
+	});
+
+	$('#fan_on').click(function(){
+	    socket.emit('change_fan','on');
+	});
+	
+	$('#fan_off').click(function(){
+	    socket.emit('change_fan','off');
+	});
+
+	$('#ac_on').click(function(){
+	    socket.emit('change_ac','on');
+	});
+	
+	$('#ac_off').click(function(){
+	    socket.emit('change_ac','off');
+	});
+       
+	$('#tv_on').click(function(){
+	    socket.emit('change_tv','on');
+	});
+	
+	$('#tv_off').click(function(){
+	    socket.emit('change_tv','off');
+	});
+       
+    }); 
+       
+  </script>
+</body>
+
+</html>
